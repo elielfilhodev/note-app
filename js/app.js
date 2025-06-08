@@ -265,7 +265,10 @@ const toggleTheme = () => {
 
 // --- EVENT LISTENERS ---
 const setupEventListeners = () => {
-    newNoteButton.addEventListener('click', () => openEditor());
+    newNoteButton.addEventListener('click', () => {
+    console.log('Botão "Criar Nova Nota" foi clicado!'); // <-- Adicione esta linha
+    openEditor();
+});
     closeEditorButton.addEventListener('click', closeEditor);
     saveNoteButton.addEventListener('click', saveNote);
 

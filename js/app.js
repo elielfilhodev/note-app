@@ -324,17 +324,3 @@ auth.onAuthStateChanged(user => {
 // Aplica o tema salvo ao carregar a página
 const savedTheme = localStorage.getItem('theme') || 'light';
 applyTheme(savedTheme);
-
-import { initializeApp } from "firebase/app";
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
-
-const app = initializeApp({
-  // Your Firebase configuration object.
-});
-
-// Create a ReCaptchaEnterpriseProvider instance using your reCAPTCHA Enterprise
-// site key and pass it to initializeAppCheck().
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaEnterpriseProvider(/* reCAPTCHA Enterprise site key */),
-  isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
-});

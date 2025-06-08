@@ -22,3 +22,4 @@ const auth = getAuth(app);
 
 // Exporta os serviços para serem usados em outros arquivos
 export { db, auth };
+

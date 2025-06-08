@@ -2,7 +2,7 @@ import { auth } from './db.js';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
 import { showDynamicIsland } from './app.js'; // Importando a função de notificação
 
-// Elementos da UI
+
 const authContainer = document.getElementById('authContainer');
 const appContainer = document.getElementById('appContainer');
 const googleSignInBtn = document.getElementById('googleSignIn');

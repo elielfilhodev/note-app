@@ -4,7 +4,6 @@ import {
     doc, addDoc, updateDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
 
-// --- ELEMENTOS DA UI ---
 const notesGrid = document.getElementById('notesGrid');
 const newNoteButton = document.getElementById('newNoteButton');
 const noteEditor = document.getElementById('noteEditor');

@@ -1,4 +1,6 @@
 import { auth } from './db.js';
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
+import { showDynamicIsland } from './app.js'; // Importando a função de notificação
 
 // Elementos da UI
 const authContainer = document.getElementById('authContainer');
@@ -6,20 +8,6 @@ const appContainer = document.getElementById('appContainer');
 const googleSignInBtn = document.getElementById('googleSignIn');
 const signOutButton = document.getElementById('signOutButton');
 const userAvatar = document.getElementById('userAvatar');
-const dynamicIsland = document.getElementById('dynamicIsland');
-
-// Inicializar autenticação
-const initAuth = () => {
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            // Usuário logado
-            showApp(user);
-        } else {
-            // Usuário não logado
-            showAuth();
-        }
-    });
-};
 
 // Mostrar tela de autenticação
 const showAuth = () => {
@@ -31,58 +19,56 @@ const showAuth = () => {
 const showApp = (user) => {
     authContainer.classList.add('hidden');
     appContainer.classList.remove('hidden');
-    
-    // Atualizar avatar do usuário
+
     if (user.photoURL) {
         userAvatar.src = user.photoURL;
     } else {
-        // Avatar padrão se não houver foto
-        userAvatar.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email) + '&background=007AFF&color=fff';
+        userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=007AFF&color=fff`;
     }
-    
-    // Mostrar notificação no Dynamic Island
+
     showDynamicIsland(`Bem-vindo, ${user.displayName || user.email.split('@')[0]}!`);
 };
 
 // Login com Google
 const signInWithGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
         .then(result => {
-            // Login bem-sucedido
             showDynamicIsland('Login realizado com sucesso!');
         })
         .catch(error => {
             console.error('Erro no login:', error);
-            showDynamicIsland('Erro no login: ' + error.message);
+            // O erro 'auth/unauthorized-domain' aparecerá aqui
+            showDynamicIsland(`Erro no login: ${error.code}`);
         });
 };
 
 // Logout
-const signOut = () => {
-    auth.signOut()
+const doSignOut = () => {
+    signOut(auth)
         .then(() => {
             showDynamicIsland('Você saiu da sua conta');
         })
         .catch(error => {
             console.error('Erro ao sair:', error);
-            showDynamicIsland('Erro ao sair: ' + error.message);
+            showDynamicIsland(`Erro ao sair: ${error.message}`);
         });
 };
 
-// Mostrar notificação no Dynamic Island
-const showDynamicIsland = (message) => {
-    dynamicIsland.textContent = message;
-    dynamicIsland.classList.add('active');
-    
-    setTimeout(() => {
-        dynamicIsland.classList.remove('active');
-    }, 3000);
+// Monitora o estado da autenticação
+const initAuth = () => {
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            showApp(user);
+        } else {
+            showAuth();
+        }
+    });
 };
 
 // Event listeners
 googleSignInBtn.addEventListener('click', signInWithGoogle);
-signOutButton.addEventListener('click', signOut);
+signOutButton.addEventListener('click', doSignOut);
 
-// Inicializar
+// Inicializa a autenticação
 initAuth();

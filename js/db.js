@@ -5,12 +5,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.
 
 // ATENÇÃO: Cole a configuração do seu projeto Firebase aqui
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_AUTH_DOMAIN",
-    projectId: "SEU_PROJECT_ID",
-    storageBucket: "SEU_STORAGE_BUCKET",
-    messagingSenderId: "SEU_SENDER_ID",
-    appId: "SEU_APP_ID"
+  apiKey: "AIzaSyAc66GqY8AwrtbMRPusVum5qFltYl7dVcs",
+  authDomain: "notas-app-7096e.firebaseapp.com",
+  projectId: "notas-app-7096e",
+  storageBucket: "notas-app-7096e.firebasestorage.app",
+  messagingSenderId: "741699943020",
+  appId: "1:741699943020:web:ff23fc17a5a42f1fe03649"
 };
 
 // Inicializa o Firebase

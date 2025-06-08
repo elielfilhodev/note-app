@@ -112,13 +112,7 @@ const renderNote = (note) => {
 
 // Abrir/Fechar editor
 const openEditor = (note = null) => {
-    console.log("1. Entrando na função openEditor.");
-
-    // Vamos verificar se o elemento principal do editor foi encontrado no HTML
-    console.log("2. O elemento 'noteEditor' é:", noteEditor);
-
     if (note) {
-        // Lógica para editar nota existente
         currentNoteId = note.id;
         noteTitle.value = note.title || '';
         noteContent.value = note.content || '';
@@ -126,7 +120,6 @@ const openEditor = (note = null) => {
         isArchived = note.archived || false;
         lastEdited.textContent = `Editado ${formatDate(note.updatedAt)}`;
     } else {
-        // Lógica para criar uma nova nota (o seu caso)
         currentNoteId = null;
         noteTitle.value = '';
         noteContent.value = '';
@@ -134,14 +127,14 @@ const openEditor = (note = null) => {
         isArchived = false;
         lastEdited.textContent = 'Nova nota';
     }
-    
     updateActionButtons();
-
-    console.log("3. Prestes a adicionar a classe 'open' ao editor.");
     noteEditor.classList.add('open');
-    console.log("4. Classe 'open' foi adicionada. Classes atuais do editor:", noteEditor.className);
-
     document.body.style.overflow = 'hidden';
+};
+
+const closeEditor = () => {
+    noteEditor.classList.remove('open');
+    document.body.style.overflow = '';
 };
 
 // Salvar ou Atualizar nota

@@ -4,6 +4,7 @@ import {
     doc, addDoc, updateDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
 
+// --- ELEMENTOS DA UI ---
 const notesGrid = document.getElementById('notesGrid');
 const newNoteButton = document.getElementById('newNoteButton');
 const noteEditor = document.getElementById('noteEditor');
@@ -37,22 +38,20 @@ const loadNotes = () => {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Cancela o listener anterior para evitar múltiplas execuções
     if (unsubscribeNotes) {
         unsubscribeNotes();
     }
 
     const notesCollection = collection(db, 'notes');
-    let q = query(notesCollection, where('userId', '==', user.uid), orderBy('updatedAt', 'desc'));
+    let q;
 
     if (currentFilter === 'favorite') {
         q = query(notesCollection, where('userId', '==', user.uid), where('favorite', '==', true), orderBy('updatedAt', 'desc'));
     } else if (currentFilter === 'archived') {
-         q = query(notesCollection, where('userId', '==', user.uid), where('archived', '==', true), orderBy('updatedAt', 'desc'));
+        q = query(notesCollection, where('userId', '==', user.uid), where('archived', '==', true), orderBy('updatedAt', 'desc'));
     } else {
-         q = query(notesCollection, where('userId', '==', user.uid), where('archived', '==', false), orderBy('updatedAt', 'desc'));
+        q = query(notesCollection, where('userId', '==', user.uid), where('archived', '==', false), orderBy('updatedAt', 'desc'));
     }
-
 
     unsubscribeNotes = onSnapshot(q, snapshot => {
         notesGrid.innerHTML = '';
@@ -97,7 +96,6 @@ const renderNote = (note) => {
     `;
 
     noteElement.addEventListener('click', () => openEditor(note));
-
     noteElement.querySelector('[data-action="favorite"]').addEventListener('click', (e) => {
         e.stopPropagation();
         toggleProperty(note.id, 'favorite', !note.favorite);
@@ -110,7 +108,7 @@ const renderNote = (note) => {
     notesGrid.appendChild(noteElement);
 };
 
-// Abrir/Fechar editor
+// Ordem correta das funções para evitar 'ReferenceError'
 const openEditor = (note = null) => {
     if (note) {
         currentNoteId = note.id;
@@ -137,7 +135,6 @@ const closeEditor = () => {
     document.body.style.overflow = '';
 };
 
-// Salvar ou Atualizar nota
 const saveNote = async () => {
     const user = auth.currentUser;
     if (!user) return;
@@ -146,7 +143,7 @@ const saveNote = async () => {
     const content = noteContent.value.trim();
 
     if (!title && !content) {
-        if(currentNoteId) await deleteNote(true); // Deleta silenciosamente se vazia
+        if (currentNoteId) await deleteNote(true);
         closeEditor();
         return;
     }
@@ -175,24 +172,6 @@ const saveNote = async () => {
     }
 };
 
-// Alternar propriedades (favorito, arquivado)
-const toggleProperty = async (noteId, prop, value) => {
-    try {
-        await updateDoc(doc(db, 'notes', noteId), {
-            [prop]: value,
-            updatedAt: serverTimestamp()
-        });
-        const message = prop === 'favorite'
-            ? (value ? 'Nota favoritada' : 'Nota desfavoritada')
-            : (value ? 'Nota arquivada' : 'Nota desarquivada');
-        showDynamicIsland(message);
-    } catch (error) {
-        console.error(`Erro ao atualizar ${prop}:`, error);
-        showDynamicIsland(`Erro ao atualizar nota`);
-    }
-};
-
-// Deletar nota
 const deleteNote = async (silent = false) => {
     if (!currentNoteId) return;
     
@@ -210,11 +189,24 @@ const deleteNote = async (silent = false) => {
     }
 };
 
-// --- FUNÇÕES UTILITÁRIAS ---
+const toggleProperty = async (noteId, prop, value) => {
+    try {
+        await updateDoc(doc(db, 'notes', noteId), {
+            [prop]: value,
+            updatedAt: serverTimestamp()
+        });
+        const message = prop === 'favorite'
+            ? (value ? 'Nota favoritada' : 'Nota desfavoritada')
+            : (value ? 'Nota arquivada' : 'Nota desarquivada');
+        showDynamicIsland(message);
+    } catch (error) {
+        console.error(`Erro ao atualizar ${prop}:`, error);
+        showDynamicIsland('Erro ao atualizar nota');
+    }
+};
 
 const updateActionButtons = () => {
     favoriteButton.classList.toggle('favorite', isFavorite);
-    // archiveButton não precisa de classe especial, apenas a lógica
 };
 
 const formatDate = (timestamp) => {
@@ -228,8 +220,8 @@ const formatDate = (timestamp) => {
 
 const filterNotes = (filter) => {
     currentFilter = filter;
-    loadNotes();
     sidebarItems.forEach(item => item.classList.toggle('active', item.dataset.filter === filter));
+    loadNotes();
 };
 
 const searchNotes = () => {
@@ -247,7 +239,6 @@ export const showDynamicIsland = (message) => {
     setTimeout(() => dynamicIsland.classList.remove('active'), 3000);
 };
 
-// --- LÓGICA DO TEMA ---
 const applyTheme = (theme) => {
     if (theme === 'dark') {
         document.body.classList.add('dark-theme');
@@ -263,12 +254,11 @@ const toggleTheme = () => {
     applyTheme(newTheme);
 };
 
-// --- EVENT LISTENERS ---
+// --- EVENT LISTENERS (aqui definimos os eventos de clique) ---
 const setupEventListeners = () => {
     newNoteButton.addEventListener('click', () => openEditor());
     closeEditorButton.addEventListener('click', closeEditor);
     saveNoteButton.addEventListener('click', saveNote);
-
     favoriteButton.addEventListener('click', () => {
         isFavorite = !isFavorite;
         updateActionButtons();
@@ -278,14 +268,11 @@ const setupEventListeners = () => {
         updateActionButtons();
     });
     deleteButton.addEventListener('click', () => deleteNote(false));
-
     searchInput.addEventListener('input', searchNotes);
-    
     menuButton.addEventListener('click', (e) => {
         e.stopPropagation();
         sidebar.classList.toggle('open');
     });
-
     sidebarItems.forEach(item => {
         if (item.dataset.filter) {
             item.addEventListener('click', () => {
@@ -294,20 +281,18 @@ const setupEventListeners = () => {
             });
         }
     });
-
     document.addEventListener('click', (e) => {
         if (!sidebar.contains(e.target) && !menuButton.contains(e.target) && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open');
         }
     });
-    
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && noteEditor.classList.contains('open')) closeEditor();
+        if (e.key === 'Escape' && noteEditor.classList.contains('open')) {
+            closeEditor();
+        }
     });
-
     themeToggleButton.addEventListener('click', toggleTheme);
 };
-
 
 // --- INICIALIZAÇÃO ---
 auth.onAuthStateChanged(user => {
@@ -316,11 +301,10 @@ auth.onAuthStateChanged(user => {
         loadNotes();
     } else {
         if (unsubscribeNotes) {
-            unsubscribeNotes(); // Para de ouvir as notas quando o usuário desloga
+            unsubscribeNotes();
         }
     }
 });
 
-// Aplica o tema salvo ao carregar a página
 const savedTheme = localStorage.getItem('theme') || 'light';
 applyTheme(savedTheme);
